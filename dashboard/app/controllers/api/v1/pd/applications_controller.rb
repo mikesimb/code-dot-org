@@ -71,9 +71,19 @@ class Api::V1::Pd::ApplicationsController < ::ApplicationController
   # GET /api/v1/pd/applications/cohort_view?role=:role&regional_partner_filter=:regional_partner_name
   def cohort_view
     applications = get_applications_by_role(params[:role].to_sym).where(status: ['accepted', 'withdrawn'])
+    cohort_capacity = nil
 
     unless params[:regional_partner_filter].nil? || params[:regional_partner_filter] == 'all'
       applications = applications.where(regional_partner_id: params[:regional_partner_filter] == 'none' ? nil : params[:regional_partner_filter])
+    end
+
+    unless [nil, 'none', 'all'].include? params[:regional_partner_filter]
+      partner = RegionalPartner.find_by(id: params[:regional_partner_filter])
+      if params[:role] = 'csd_teachers'
+        cohort_capacity = partner.cohort_capacity_csd
+      elsif params[:role] = 'csp_teachers'
+        cohort_capacity = partner.cohort_capacity_csp
+      end
     end
 
     serializer =
@@ -85,7 +95,10 @@ class Api::V1::Pd::ApplicationsController < ::ApplicationController
 
     respond_to do |format|
       format.json do
-        render json: applications, each_serializer: serializer
+        render json: {
+          applications: applications.map {|app| serializer.new(app).attributes},
+          capacity: cohort_capacity
+        }
       end
       format.csv do
         csv_text = [TYPES_BY_ROLE[params[:role].to_sym].cohort_csv_header, applications.map(&:to_cohort_csv_row)].join
