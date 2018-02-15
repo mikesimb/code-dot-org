@@ -89,7 +89,7 @@ group :development, :test do
   gem 'eyes_selenium', '3.14.2'
   gem 'minitest', '~> 5.5'
   gem 'minitest-around'
-  gem 'minitest-reporters'
+  gem 'minitest-reporters', '~> 1.2.0.beta3'
   gem 'net-http-persistent'
   gem 'rinku'
   gem 'rspec'
@@ -156,7 +156,7 @@ gem 'haml'
 
 gem 'jquery-ui-rails', '~> 6.0.1'
 
-gem 'nokogiri', '~> 1.6.1'
+gem 'nokogiri', '~> 1.8.2'
 
 gem 'highline', '~> 1.6.21'
 
